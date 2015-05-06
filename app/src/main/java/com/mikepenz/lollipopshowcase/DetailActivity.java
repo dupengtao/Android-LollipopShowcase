@@ -6,29 +6,30 @@ import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.lollipopshowcase.entity.AppInfo;
 import com.mikepenz.lollipopshowcase.util.UploadHelper;
+import com.nispok.snackbar.Snackbar;
 
 import java.util.Date;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-
-public class DetailActivity extends ActionBarActivity {
+public class DetailActivity extends AppCompatActivity {
 
     private static final int SCALE_DELAY = 30;
 
-    private Toolbar toolbar;
     private LinearLayout rowContainer;
 
     private AppInfo appInfo = null;
@@ -40,7 +41,7 @@ public class DetailActivity extends ActionBarActivity {
 
         //Utils.configureWindowEnterExitTransition(getWindow());
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -57,7 +58,8 @@ public class DetailActivity extends ActionBarActivity {
         rowContainer = (LinearLayout) findViewById(R.id.row_container);
 
         // Fab Button
-        View fabButton = findViewById(R.id.fab_button);
+        ImageButton fabButton = (ImageButton) findViewById(R.id.fab_button);
+        fabButton.setImageDrawable(new IconicsDrawable(this, FontAwesome.Icon.faw_upload).color(Color.WHITE).actionBarSize());
         fabButton.setOnClickListener(fabClickListener);
         Utils.configureFab(fabButton);
 
@@ -134,8 +136,11 @@ public class DetailActivity extends ActionBarActivity {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText("AppInfo", description);
                 clipboard.setPrimaryClip(clip);
-                Crouton.clearCroutonsForActivity(DetailActivity.this);
-                Crouton.showText(DetailActivity.this, "Copied " + title, Style.CONFIRM);
+
+                Snackbar.with(getApplicationContext()).dismiss();
+                Snackbar.with(getApplicationContext()) // context
+                        .text("Copied " + title) // text to display
+                        .show(DetailActivity.this);
             }
         });
     }

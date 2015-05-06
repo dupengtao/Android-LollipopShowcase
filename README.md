@@ -1,6 +1,6 @@
 #Android-LollipopShowcase [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android--LollipopShowcase-brightgreen.svg?style=flat)](https://android-arsenal.com/details/3/1057)
 
-This is a simple showcase to show off Androids all new Material Design and some other cool new stuff which is (new) in Android Lollipop.
+This is a simple showcase to show off Android's all new Material Design and some other cool new stuff which is (new) in Android Lollipop.
 
 This includes features like:
 - Toolbar
@@ -12,10 +12,13 @@ This includes features like:
 - RippleDrawables
 - Android Compat Theme
 - DrawerLayout
+- SwipeRefreshLayout
 
 #Preview
 ##Demo
-Try it out now. It's on Google Play ;) https://play.google.com/store/apps/details?id=com.mikepenz.lollipopshowcase
+Try it out now. It's on Google Play
+
+https://play.google.com/store/apps/details?id=com.mikepenz.lollipopshowcase.sample
 
 ##Screenshots
 ![Image](https://raw.githubusercontent.com/mikepenz/Android-LollipopShowcase/master/DEV/screenshots/screenshot_1_small.jpg)
@@ -37,7 +40,7 @@ Some stuff is just implemented to showcase its functionality and so they are not
 
 #License
 
-    Copyright 2014 Mike Penz
+    Copyright 2015 Mike Penz
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

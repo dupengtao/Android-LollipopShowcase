@@ -1,17 +1,16 @@
 package com.mikepenz.lollipopshowcase.util;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.mikepenz.lollipopshowcase.R;
 import com.mikepenz.lollipopshowcase.entity.AppInfo;
+import com.nispok.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Created by mikepenz on 18.10.14.
@@ -20,7 +19,7 @@ public class UploadHelper {
     private static UploadHelper instance = null;
 
 
-    private UploadHelper(ActionBarActivity act, List<AppInfo> applicationList) {
+    private UploadHelper(AppCompatActivity act, List<AppInfo> applicationList) {
         this.act = act;
 
         if (applicationList != null) {
@@ -30,10 +29,10 @@ public class UploadHelper {
         }
     }
 
-    private ActionBarActivity act;
+    private AppCompatActivity act;
     private List<AppInfo> applicationList = new ArrayList<AppInfo>();
 
-    public static UploadHelper getInstance(ActionBarActivity act, List<AppInfo> applicationList) {
+    public static UploadHelper getInstance(AppCompatActivity act, List<AppInfo> applicationList) {
         if (instance == null) {
             instance = new UploadHelper(act, applicationList);
         } else if (act != null) {
@@ -42,32 +41,49 @@ public class UploadHelper {
         return instance;
     }
 
-    public void upload(AppInfo appInfo) {
-        new UploadComponentInfoTask().execute(appInfo);
+    public void destroy() {
+        this.act = null;
     }
 
-    public void uploadAll() {
-        new UploadComponentInfoTask().execute();
+    public UploadComponentInfoTask upload(AppInfo appInfo) {
+        UploadComponentInfoTask ucit = new UploadComponentInfoTask();
+        ucit.execute(appInfo);
+        return ucit;
     }
 
-    private class UploadComponentInfoTask extends AsyncTask<AppInfo, Integer, Boolean> {
-        ProgressDialog mProgressDialog = new ProgressDialog(act);
+    public UploadComponentInfoTask uploadAll() {
+        UploadComponentInfoTask ucit = new UploadComponentInfoTask();
+        ucit.execute();
+        return ucit;
+    }
+
+    public class UploadComponentInfoTask extends AsyncTask<AppInfo, Integer, Boolean> {
+        ProgressDialog mProgressDialog;
+
+        public boolean isRunning = false;
+
+        public void showProgress(Activity act) {
+            mProgressDialog = new ProgressDialog(act);
+            mProgressDialog.setTitle(R.string.dialog_uploading);
+            mProgressDialog.setMessage(act.getString(R.string.dialog_processinganduploading));
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.setMax(applicationList.size());
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
+            mProgressDialog.show();
+        }
 
         @Override
         protected void onPreExecute() {
             if (!Network.isAvailiable(act)) {
                 this.cancel(true);
-
-                Crouton.showText(act, R.string.dialog_nointernet, Style.ALERT);
+                Snackbar.with(act).text(act.getString(R.string.dialog_nointernet)).show(act);
             } else {
-                mProgressDialog.setTitle(R.string.dialog_uploading);
-                mProgressDialog.setMessage(act.getString(R.string.dialog_processinganduploading));
-                mProgressDialog.setIndeterminate(false);
-                mProgressDialog.setCancelable(false);
-                mProgressDialog.setMax(applicationList.size());
-                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                mProgressDialog.show();
+                showProgress(act);
             }
+
+            isRunning = true;
 
             super.onPreExecute();
         }
@@ -78,12 +94,14 @@ public class UploadHelper {
             if (params == null || params.length == 0) {
                 mProgressDialog.setMax(applicationList.size());
 
+                int i = 0;
                 for (AppInfo ai : applicationList) {
                     updateRequired = postData();
-                    publishProgress(mProgressDialog.getProgress() + 1);
+                    publishProgress(i);
                     if (updateRequired) {
                         break;
                     }
+                    i++;
                 }
             } else if (params.length == 1) {
                 updateRequired = postData();
@@ -95,29 +113,30 @@ public class UploadHelper {
 
         @Override
         protected void onPostExecute(Boolean updateRequired) {
-            mProgressDialog.dismiss();
+            isRunning = false;
+
+            if (mProgressDialog != null) {
+                mProgressDialog.dismiss();
+            }
             super.onPostExecute(updateRequired);
         }
 
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            if (values.length > 0) {
+            if (values.length > 0 && mProgressDialog != null) {
                 mProgressDialog.setProgress(values[0]);
             }
             super.onProgressUpdate(values);
         }
-
     }
 
     public boolean postData() {
-
         try {
-            Thread.sleep(150);
+            Thread.sleep(100);
         } catch (Exception ex) {
 
         }
-
         return false;
     }
 }
